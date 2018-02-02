@@ -44,13 +44,21 @@ static SubmitBenchmarkResultsProc SubmitBenchmarkResultsReal = NULL;
 static const char defaultIniPath[] =
     "config\\GraphicsConfig_BenchmarkMiddle.ini";
 
+static const wchar_t standardLowPath[] =
+    L"config\\GraphicsConfig_BenchmarkLow.ini";
+static const wchar_t standardMiddlePath[] =
+    L"config\\GraphicsConfig_BenchmarkMiddle.ini";
+static const wchar_t standardHighPath[] =
+    L"config\\GraphicsConfig_BenchmarkHigh.ini";
+
 static const uintptr_t graphicsConfigOffset = 440;
 
 void __fastcall SubmitBenchmarkResultsHook(uintptr_t a1, uintptr_t a2) {
-    // let's try not to screw up SE's stat collection, shall we?
-    if (configIsModified) return;
+  // let's try not to screw up SE's stat collection, shall we?
+  if (configIsModified)
+    return;
 
-    return SubmitBenchmarkResultsReal(a1, a2);
+  return SubmitBenchmarkResultsReal(a1, a2);
 }
 
 void __fastcall LoadBenchmarkGraphicsIniHook(void *state, const char *path) {
@@ -68,6 +76,12 @@ void __fastcall LoadBenchmarkGraphicsIniHook(void *state, const char *path) {
 
   if (realpath == NULL) {
     return LoadBenchmarkGraphicsIniReal(state, defaultIniPath);
+  }
+
+  if (_wcsicmp(realpath, standardLowPath) == 0 ||
+      _wcsicmp(realpath, standardMiddlePath) == 0 ||
+      _wcsicmp(realpath, standardHighPath) == 0) {
+    return LoadBenchmarkGraphicsIniReal(state, path);
   }
 
   wchar_t expandedPath[MAX_PATH];
@@ -111,7 +125,8 @@ void patch() {
   SubmitBenchmarkResultsOrig =
       (SubmitBenchmarkResultsProc)sigScan(SubmitBenchmarkResultsSig);
 
-  if (EngineLoadString == NULL || LoadBenchmarkGraphicsIniOrig == NULL || SubmitBenchmarkResultsOrig == NULL) {
+  if (EngineLoadString == NULL || LoadBenchmarkGraphicsIniOrig == NULL ||
+      SubmitBenchmarkResultsOrig == NULL) {
     MessageBoxA(NULL,
                 "Failed to find functions, continuing with default settings",
                 "Custom settings", MB_OK);
@@ -119,8 +134,8 @@ void patch() {
   }
 
   if (MH_CreateHook((void *)SubmitBenchmarkResultsOrig,
-      (void *)SubmitBenchmarkResultsHook,
-      (void **)&SubmitBenchmarkResultsReal) != MH_OK ||
+                    (void *)SubmitBenchmarkResultsHook,
+                    (void **)&SubmitBenchmarkResultsReal) != MH_OK ||
       MH_EnableHook((void *)SubmitBenchmarkResultsOrig) != MH_OK ||
       MH_CreateHook((void *)LoadBenchmarkGraphicsIniOrig,
                     (void *)LoadBenchmarkGraphicsIniHook,
