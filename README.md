@@ -6,7 +6,20 @@ The benchmark normally sends performance data to Square Enix. This patch disable
 
 ### Usage
 
-To use, extract `dinput8.dll` to the installation folder, create your configuration, then run `ffxv.exe` with the appropriate parameters:
+##### Step-by-step
+
+* **[Download](https://github.com/drdaxxy/ffxvBenchCustom/releases/latest)** the current version
+* **Extract `dinput8.dll`** from the archive into the folder where you installed the benchmark.
+* **Create a custom configuration file** somewhere on your drive, e.g. `C:\Users\<username>\Documents\ffxv_custom.ini`. Refer to `ffxv_Lite.ini`, `ffxv_Standard.ini` and `ffxv_High.ini` for the standard presets.
+* **Create a shortcut** to `ffxv.exe` (right-click `ffxv.exe` in the installation folder, "Create Shortcut").
+* **Right-click the just created shortcut** (which should have appared in the installation folder, or on the desktop if you were asked to put it there), select Properties.
+* At the end of "Target", after the closing quotation mark, **append**: ` --graphicsIni <path> --displayResolution <width> <height> --renderingResolution <width> <height> --locale=<en/jp>`, and `-f` if you want to run in fullscreen mode, and `--loop_mode` if you want an infinite loop.
+
+**For example**: `"C:\Program Files\SquareEnix\FINAL FANTASY XV BENCHMARK\ffxv.exe" --graphicsIni "C:\Users\Noctis\Documents\ffxv_custom.ini" --displayResolution 1920 1080 --renderingResolution 3840 2160 --locale=en -f` to run the benchmark in English using the settings specified in `C:\Users\Noctis\Documents\ffxv_custom.ini` in fullscreen mode at 1080p, but rendering at 4K (supersampling), if you installed it to the default location, `C:\Program Files\SquareEnix\FINAL FANTASY XV BENCHMARK`.
+
+##### Details
+
+`ffxv.exe` commonly uses the following commandline parameters:
 
 * `--graphicsIni <path>`: Path to the graphics configuration file. By default, the program will only accept hardcoded paths to standard configurations (with hardcoded settings in the executable). This patch lets you specify any file on your system.
 * `--displayResolution <width> <height>`: Resolution of the window / display mode
@@ -15,9 +28,7 @@ To use, extract `dinput8.dll` to the installation folder, create your configurat
 * `--locale=<en/jp>`: Language
 * `--loop_mode`: Run in an infinite loop
 
-The executable lists more options (`--ui_lang`, `--numThreads`, `--numAsyncThreads`, `--720p`, `--2160p`, `--noNvidiaAfterMath`) - these are not used by the original launcher (`ffxvbench.exe`) though.
-
-For example, you could use `ffxv.exe --graphicsIni "%USERPROFILE%\Documents\ffxv_custom.ini" --displayResolution 1920 1080 --renderingResolution 3840 2160 --locale=en -f` to run the benchmark in English using the settings specified in `%USERPROFILE%\Documents\ffxv_custom.ini` (e.g. `C:\Users\<username>\Documents\ffxv_custom.ini`) in fullscreen mode at 1080p, but rendering at 4K (supersampling).
+The executable lists more options (`--ui_lang`, `--numThreads`, `--numAsyncThreads`, `--720p`, `--2160p`, `--noNvidiaAfterMath`) - these are not used by the original launcher (`ffxvbench.exe`) though. Feel free to experiment.
 
 The default configurations (Lite / Standard / High) are provided in the release archive.
 
