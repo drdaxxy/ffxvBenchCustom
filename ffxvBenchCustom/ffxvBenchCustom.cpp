@@ -18,6 +18,7 @@ static DirectInput8CreateProc realDirectInput8Create = NULL;
 static HINSTANCE hRealDinput8 = NULL;
 
 static bool patched = false;
+static bool configIsModified = false;
 
 static const char LoadBenchmarkGraphicsIniSig[] =
     "48 8B C4 55 48 8B EC 48 ?? ?? ?? ?? ?? ?? 48 ?? ?? ?? ?? ?? ?? ?? 48 89 "
@@ -32,10 +33,25 @@ static const char EngineLoadStringSig[] =
 typedef int64_t(__fastcall *EngineLoadStringProc)(void *dst, const char *src);
 static EngineLoadStringProc EngineLoadString = NULL;
 
+static const char SubmitBenchmarkResultsSig[] =
+    "40 55 56 57 48 8D 6C 24 B9 48 ?? ?? ?? ?? ?? ?? 48 ?? ?? ?? ?? ?? ?? ?? "
+    "?? ?? ?? ?? ?? ?? ?? ?? 48 8B DA";
+typedef void(__fastcall *SubmitBenchmarkResultsProc)(uintptr_t a1,
+                                                     uintptr_t a2);
+static SubmitBenchmarkResultsProc SubmitBenchmarkResultsOrig = NULL;
+static SubmitBenchmarkResultsProc SubmitBenchmarkResultsReal = NULL;
+
 static const char defaultIniPath[] =
     "config\\GraphicsConfig_BenchmarkMiddle.ini";
 
 static const uintptr_t graphicsConfigOffset = 440;
+
+void __fastcall SubmitBenchmarkResultsHook(uintptr_t a1, uintptr_t a2) {
+    // let's try not to screw up SE's stat collection, shall we?
+    if (configIsModified) return;
+
+    return SubmitBenchmarkResultsReal(a1, a2);
+}
 
 void __fastcall LoadBenchmarkGraphicsIniHook(void *state, const char *path) {
   // path is cut off after a space, so we need to parse the commandline argument
@@ -66,6 +82,8 @@ void __fastcall LoadBenchmarkGraphicsIniHook(void *state, const char *path) {
     return LoadBenchmarkGraphicsIniReal(state, defaultIniPath);
   }
 
+  configIsModified = true;
+
   fseek(ini, 0L, SEEK_END);
   int iniSz = ftell(ini);
   fseek(ini, 0L, SEEK_SET);
@@ -90,15 +108,21 @@ void patch() {
   EngineLoadString = (EngineLoadStringProc)sigScan(EngineLoadStringSig);
   LoadBenchmarkGraphicsIniOrig =
       (LoadBenchmarkGraphicsIniProc)sigScan(LoadBenchmarkGraphicsIniSig);
+  SubmitBenchmarkResultsOrig =
+      (SubmitBenchmarkResultsProc)sigScan(SubmitBenchmarkResultsSig);
 
-  if (EngineLoadString == NULL || LoadBenchmarkGraphicsIniOrig == NULL) {
+  if (EngineLoadString == NULL || LoadBenchmarkGraphicsIniOrig == NULL || SubmitBenchmarkResultsOrig == NULL) {
     MessageBoxA(NULL,
                 "Failed to find functions, continuing with default settings",
                 "Custom settings", MB_OK);
     return;
   }
 
-  if (MH_CreateHook((void *)LoadBenchmarkGraphicsIniOrig,
+  if (MH_CreateHook((void *)SubmitBenchmarkResultsOrig,
+      (void *)SubmitBenchmarkResultsHook,
+      (void **)&SubmitBenchmarkResultsReal) != MH_OK ||
+      MH_EnableHook((void *)SubmitBenchmarkResultsOrig) != MH_OK ||
+      MH_CreateHook((void *)LoadBenchmarkGraphicsIniOrig,
                     (void *)LoadBenchmarkGraphicsIniHook,
                     (void **)&LoadBenchmarkGraphicsIniReal) != MH_OK ||
       MH_EnableHook((void *)LoadBenchmarkGraphicsIniOrig) != MH_OK) {
