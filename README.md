@@ -25,3 +25,62 @@ The default configurations (Lite / Standard / High) are provided in the release 
 
 See the [Releases section](https://github.com/drdaxxy/ffxvBenchCustom/releases).
 Please do not reupload in case I'll have to update this for some reason.
+
+### Full INI parameters
+
+The executable lists INI parameters not used in the standard presets. I have not looked into what types these are, whether they work as intended, or even whether they do anything at all, but here's the full list (just names):
+
+```
+[BasicSettings]
+
+DisplayResolutionWH
+RenderingResolutionWH
+MaxFramerate
+ShowFPS
+ShowConfig
+FixedFramerate
+
+[DisplaySettings]
+
+HardwareFullScreenMode
+FullScreenModeOnStartup
+HighPrecisionRenderTarget
+FP16BackBuffer
+DisplayScalingMode
+VSync
+HDRGammaScale
+HDRLuminanceScale
+
+[RenderingSettings]
+
+HighSpecAsset
+TextureStreamingMemory
+TextureAnisotropicFilter
+LightingQuality
+AmbientOcclusion
+ShadowResolution
+ShadowDistanceScaling
+ModelLODScaling
+ScreenFilterDetail
+Antialias
+TextureSpec
+ParticleSpec
+HeightFieldSpec
+ProceduralSkySpec
+DisabledLightProbe
+
+[NVIDIAGameWorksSettings]
+
+NvidiaHairWorks
+NvidiaVXAO
+NvidiaHBAO
+NvidiaTurf
+NvidiaShadowLibs
+NvidiaFlow
+NvidiaTerrainTesselation
+NvidiaAnsel
+NvidiaHighlights
+NvidiaSLI
+```
+
+(Technically, there's also `DisplayResolution` and `RenderingResolution`. These take the height and make the corresponding 16:9 resolution - e.g. `DisplayResolution = 1080` for 1080p - but they're overridden by `DisplayResolutionWH`/`RenderingResolutionWH` and the command-line parameters anyway)
