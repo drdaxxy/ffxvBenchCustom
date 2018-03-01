@@ -1,5 +1,15 @@
 # ffxvbench
 
+### Version notes
+
+**This tool only works (and is only needed for) the benchmark.** Demo and retail versions of the game allow you to change settings both graphically and by editing the INI out of the box.
+
+For the demo version, the INI can be found at `Documents\My Games\FINAL FANTASY XV PLAYABLE DEMO\Steam\<id>\savestorage\GraphicsConfig.ini`.
+
+There is also an external configuration tool in `SteamApps\common\FINAL FANTASY XV PLAYABLE DEMO\tools\GraphicsConfigurationTool`. That tool writes to `SteamApps\common\FINAL FANTASY XV PLAYABLE DEMO\GraphicsConfig.ini`, which **causes conflicts** with ingame settings. I recommend either not using it (and deleting the GraphicsConfig.ini in the game installation directory if you've used it before), or *moving* the generated GraphicsConfig.ini to the `My Games` location. You should also not be running the game while editing that file.
+
+--------
+
 This patch allows you to customise graphics settings in the recently released FINAL FANTASY XV WINDOWS EDITION benchmark.
 
 The benchmark normally sends performance data to Square Enix. This patch disables the data collection when running with customised settings so as to not taint their statistics.
